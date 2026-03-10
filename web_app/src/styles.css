@@ -98,11 +98,23 @@ button {
 button.primary {
   background: linear-gradient(145deg, #5d6dff, #3f4cff);
   color: #fff;
+  transition: all 0.2s ease;
+}
+
+button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(93, 109, 255, 0.4);
 }
 
 button.secondary {
   background: rgba(174, 184, 255, 0.15);
   color: #f2f4ff;
+  transition: all 0.2s ease;
+}
+
+button.secondary:hover {
+  background: rgba(174, 184, 255, 0.25);
+  transform: translateY(-2px);
 }
 
 .grid-layout {
@@ -128,12 +140,24 @@ button.secondary {
 .motion {
   background: linear-gradient(160deg, #2a3dab, #17236c);
   color: #e7ebff;
+  transition: all 0.2s ease;
+}
+
+.motion:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(42, 61, 171, 0.35);
 }
 
 .danger {
   background: linear-gradient(160deg, #ff4965, #c51736);
   color: #fff;
   box-shadow: 0 0 24px rgba(255, 73, 101, 0.4);
+  transition: all 0.2s ease;
+}
+
+.danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px rgba(255, 73, 101, 0.6);
 }
 
 .slider-wrap {
@@ -161,9 +185,9 @@ button.secondary {
   background: rgba(13, 17, 42, 0.8);
 }
 
-.telemetry-card.green { border-color: rgba(126, 241, 172, 0.45); }
-.telemetry-card.blue { border-color: rgba(124, 173, 255, 0.45); }
-.telemetry-card.purple { border-color: rgba(200, 149, 255, 0.45); }
+.telemetry-card.green { border-color: rgba(126, 241, 172, 0.45); color: #7ef1ac; }
+.telemetry-card.blue { border-color: rgba(124, 173, 255, 0.45); color: #7cadff; }
+.telemetry-card.purple { border-color: rgba(187, 155, 255, 0.45); color: #bb9bff; }
 
 .telemetry-label {
   margin: 0;
