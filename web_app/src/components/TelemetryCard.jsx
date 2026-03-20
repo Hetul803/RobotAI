@@ -1,8 +1,9 @@
-export default function TelemetryCard({ label, value, tone = 'blue' }) {
+export default function TelemetryCard({ label, value, hint, tone = 'blue' }) {
   return (
-    <div className={`telemetry-card ${tone}`}>
+    <article className={`telemetry-card ${tone}`}>
       <p className="telemetry-label">{label}</p>
       <p className="telemetry-value">{value}</p>
-    </div>
+      {hint ? <p className="telemetry-hint">{hint}</p> : null}
+    </article>
   )
 }

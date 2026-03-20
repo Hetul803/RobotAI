@@ -1,19 +1,19 @@
-# Raspberry Pi Robot Backend (`pi_backend`)
+# pi_backend
 
-This folder contains a deploy-friendly FastAPI backend designed to run on a Raspberry Pi and control a Wi-Fi robot in real time over WebSocket.
+FastAPI backend for a Raspberry Pi rover. It exposes the control API, telemetry stream, mock-safe hardware controllers, waypoint execution, obstacle avoidance, and a browser-friendly camera stream.
 
-## Features
+## Files
 
-- FastAPI server with:
-  - `GET /` health endpoint
-  - `WS /ws` robot control endpoint
-- Safe mock motor functions for:
-  - `forward`, `backward`, `left`, `right`, `stop`
-  - `servo_pan(value)`, `servo_tilt(value)`
-- Safety behavior: when WebSocket disconnects, `stop()` is always called.
-- Easy run options:
-  - `python3 app.py`
-  - `./run.sh`
+- `app.py` — FastAPI app and route wiring
+- `config.py` — all wiring, limits, and tuning values
+- `motor_controller.py` — DC motor control
+- `steering_controller.py` — front steering servo and camera pan servo
+- `lidar_controller.py` — LiDAR readings and simple directional scans
+- `camera_controller.py` — MJPEG video stream
+- `autonomy_controller.py` — obstacle avoidance loop
+- `command_executor.py` — waypoint-by-command parsing and execution
+- `state.py` — shared rover state and telemetry
+- `robot.service` — optional systemd service
 
 ## Install dependencies
 
@@ -24,7 +24,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run backend
+## Run the backend
 
 ```bash
 cd pi_backend
@@ -39,58 +39,58 @@ chmod +x run.sh
 ./run.sh
 ```
 
-Server starts on:
+The API listens on `http://0.0.0.0:8000` by default.
 
-- `http://0.0.0.0:8000`
-- WebSocket: `ws://<pi-ip>:8000/ws`
+## Edit wiring and tuning
 
-## Message format from frontend
+Open `config.py` and update the motor pins, servo channels, steering limits, camera pan limits, LiDAR connection values, safety thresholds, speeds, and video settings.
 
-Examples expected by this backend:
+Set `MOCK_MODE = True` while developing without hardware. Set it to `False` when you replace the mock controller internals with real hardware calls.
 
-```json
-{"command":"forward"}
-{"command":"left"}
-{"command":"stop"}
-{"command":"servo_pan","value":120}
-{"command":"servo_tilt","value":75}
-```
-
-Backend responds with JSON including `status` and `last_action`.
-
-## How to find your Raspberry Pi IP
-
-On the Pi, run:
+## Find the Pi IP address
 
 ```bash
 hostname -I
 ```
 
-Use the first IP shown (for example: `192.168.1.44`).
+Use the first IP address in the output. You can also try `raspberrypi.local` on the same network.
 
-You can also try mDNS hostname:
+## Frontend connection
 
-- `raspberrypi.local`
+Open the dashboard and point it to your Pi backend, for example:
 
-## How frontend connects
+- `http://raspberrypi.local:8000`
+- `http://192.168.1.44:8000`
 
-In your frontend app, set WebSocket URL to:
+The frontend uses:
 
-- `ws://raspberrypi.local:8000/ws`
+- WebSocket telemetry at `/ws`
+- camera stream at `/video`
+- REST routes for mode changes, waypoint submission, and emergency stop
 
-or:
+## Enable auto-start with systemd
 
-- `ws://<pi-ip>:8000/ws`
+Copy `robot.service` into systemd, then enable it:
 
-Both devices (Pi and browser device) must be on the same Wi-Fi.
+```bash
+sudo cp robot.service /etc/systemd/system/robot.service
+sudo systemctl daemon-reload
+sudo systemctl enable robot.service
+sudo systemctl start robot.service
+sudo systemctl status robot.service
+```
 
-## Replacing mock motor code with GPIO later
+If your project lives somewhere else, update `WorkingDirectory` and `ExecStart` inside `robot.service` first.
 
-Edit `motor_controller.py` and replace print statements with real GPIO calls (for example via `gpiozero` or `RPi.GPIO`).
+## API overview
 
-Suggested approach:
-
-1. Keep function names the same (`forward`, `stop`, etc.)
-2. Add hardware initialization once at module startup.
-3. Replace body of each movement/servo function with actual pin control logic.
-4. Keep return values as strings so the WebSocket response format remains consistent.
+- `GET /`
+- `GET /state`
+- `GET /config`
+- `POST /mode`
+- `POST /stop`
+- `POST /waypoints`
+- `POST /autonomy/start`
+- `POST /autonomy/stop`
+- `GET /video`
+- `WS /ws`

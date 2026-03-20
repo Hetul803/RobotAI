@@ -1,43 +1,35 @@
-"""Mock motor and servo controller.
-
-Replace the print statements with real Raspberry Pi GPIO code when deploying to hardware.
-"""
-
 from __future__ import annotations
 
-
-def forward() -> str:
-    print("[MOTOR] Moving forward")
-    return "forward"
+import config
+from state import RobotState
 
 
-def backward() -> str:
-    print("[MOTOR] Moving backward")
-    return "backward"
+class MotorController:
+    def __init__(self, state: RobotState) -> None:
+        self.state = state
+        self.mock_mode = config.MOCK_MODE
 
+    def _apply(self, direction: str, speed: float, action: str) -> str:
+        speed = round(config.clamp(speed, 0.0, 1.0), 2)
+        if self.mock_mode:
+            print(f'[MOTOR] {action} | direction={direction} speed={speed}')
+        self.state.update(speed=speed, drive_direction=direction, last_action=action, error=None)
+        return action
 
-def left() -> str:
-    print("[MOTOR] Turning left")
-    return "left"
+    def forward(self, speed: float | None = None) -> str:
+        return self._apply('forward', speed or config.DEFAULT_DRIVE_SPEED, 'driving forward')
 
+    def backward(self, speed: float | None = None) -> str:
+        return self._apply('backward', speed or config.DEFAULT_TURNING_SPEED, 'driving backward')
 
-def right() -> str:
-    print("[MOTOR] Turning right")
-    return "right"
+    def stop(self, reason: str = 'stopped') -> str:
+        if self.mock_mode:
+            print(f'[MOTOR] stop | reason={reason}')
+        self.state.update(speed=0.0, drive_direction='stopped', last_action=reason)
+        return reason
 
-
-def stop() -> str:
-    print("[MOTOR] Stopping robot")
-    return "stop"
-
-
-def servo_pan(value: int) -> str:
-    clamped = max(0, min(180, int(value)))
-    print(f"[SERVO] Pan set to {clamped}")
-    return f"servo_pan:{clamped}"
-
-
-def servo_tilt(value: int) -> str:
-    clamped = max(0, min(180, int(value)))
-    print(f"[SERVO] Tilt set to {clamped}")
-    return f"servo_tilt:{clamped}"
+    def emergency_stop(self, reason: str = 'emergency stop') -> str:
+        if self.mock_mode:
+            print(f'[MOTOR] emergency_stop | reason={reason}')
+        self.state.update(speed=0.0, drive_direction='stopped', last_action=reason, error=reason)
+        return reason

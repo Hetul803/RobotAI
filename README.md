@@ -1,36 +1,21 @@
-# RobotAI: Wi-Fi Robot Control Project
+# RobotAI
 
-This repository is a complete two-part robotics control setup:
-
-- `pi_backend/` → runs on Raspberry Pi (FastAPI + WebSocket control server)
-- `web_app/` → runs in browser (React + Vite control dashboard)
+RobotAI is a two-part rover control project built around a Raspberry Pi backend and a browser dashboard.
 
 ## Architecture
 
-`Frontend Web App` ⇄ `Wi-Fi Network` ⇄ `Raspberry Pi Backend`
+- `web_app/` runs in the browser on a laptop or phone
+- `pi_backend/` runs on the Raspberry Pi
+- the frontend talks to the Pi over Wi-Fi using REST, WebSocket, and a camera stream
 
-1. Web app sends real-time JSON commands over WebSocket.
-2. Pi backend parses commands and calls motor/servo functions.
-3. Backend returns status + last action JSON responses.
-4. On disconnect, backend executes `stop()` for safety.
+## Project layout
 
-## Folder overview
-
-- `pi_backend/`
-  - `app.py` FastAPI app + WebSocket endpoint `/ws`
-  - `motor_controller.py` mock movement + servo functions
-  - `config.py` host/port configuration
-  - `requirements.txt`, `run.sh`, and backend README
-
-- `web_app/`
-  - React + Vite app with responsive futuristic UI
-  - WebSocket connection controls and command sender
-  - telemetry cards + command log panel
-  - frontend README for run and network usage
+- `pi_backend/` — FastAPI backend, mock-safe hardware controllers, autonomy logic, and camera stream
+- `web_app/` — React dashboard for control, telemetry, and camera viewing
 
 ## Quick start
 
-### Backend (Raspberry Pi)
+### Raspberry Pi backend
 
 ```bash
 cd pi_backend
@@ -40,7 +25,7 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-### Frontend (Laptop/dev machine)
+### Frontend dashboard
 
 ```bash
 cd web_app
@@ -48,14 +33,14 @@ npm install
 npm run dev
 ```
 
-Then open browser and connect to:
+## Modes
 
-- `ws://raspberrypi.local:8000/ws` (or Pi IP)
+- Manual drive for quick hardware checks
+- Obstacle avoidance for local autonomous driving with LiDAR safety
+- Waypoint-by-command for scripted command sequences such as `forward 10` and `right 90`
 
-## Deployment-friendly notes
+## Deployment notes
 
-- No Docker
-- No database
-- No auth complexity
-- Minimal dependencies
-- Backend can be deployed by copying entire `pi_backend/` folder to Raspberry Pi
+- Copy the full `pi_backend/` folder to the Raspberry Pi.
+- Adjust wiring and safety values in `pi_backend/config.py`.
+- Enable `robot.service` if you want the backend to start at boot.

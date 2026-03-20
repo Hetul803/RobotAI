@@ -1,6 +1,6 @@
-# Robot Web App (`web_app`)
+# web_app
 
-This is a React + Vite web control console for a Raspberry Pi robot backend.
+React + Vite dashboard for the rover backend. It connects to the Pi over REST and WebSocket, shows the camera stream, and exposes manual, obstacle avoidance, and waypoint-by-command controls.
 
 ## Install
 
@@ -9,40 +9,39 @@ cd web_app
 npm install
 ```
 
-## Run development server
+## Run
 
 ```bash
 cd web_app
 npm run dev
 ```
 
-The app usually runs at `http://localhost:5173`.
+Vite serves the app on `http://localhost:5173` by default.
 
-## Change Raspberry Pi address
+## Change the backend URL
 
-In the app UI, edit the WebSocket URL field.
+The dashboard has a backend URL field at the top of the page. The default value is:
 
-Default value:
+- `http://raspberrypi.local:8000`
 
-- `ws://raspberrypi.local:8000/ws`
+You can replace it with your Pi IP address, for example:
 
-Alternative:
+- `http://192.168.1.44:8000`
 
-- `ws://<pi-ip>:8000/ws`
+## Use it from a laptop or phone on the same Wi-Fi
 
-## Use from laptop or phone browser on same Wi-Fi
+1. Start the backend on the Raspberry Pi.
+2. Start the frontend on your laptop with `npm run dev`.
+3. Make sure the laptop, phone, and Pi are on the same Wi-Fi network.
+4. Open the laptop's Vite URL in the browser. From a phone, use the laptop IP, such as `http://192.168.1.20:5173`.
+5. In the dashboard, point the backend URL field to the Pi.
 
-1. Start backend on the Raspberry Pi.
-2. Start frontend with `npm run dev` on your laptop.
-3. Ensure phone/laptop/Pi are on the same Wi-Fi network.
-4. Open the laptop's frontend URL from phone browser (you may need laptop local IP like `http://192.168.1.x:5173`).
-5. In the app, set WebSocket URL to Pi address and press **Connect**.
+## Dashboard features
 
-## Features in UI
-
-- Dark futuristic responsive control dashboard
-- Connect/disconnect to backend WebSocket
-- Movement commands: forward, backward, left, right, stop
-- Servo controls: pan and tilt sliders
-- Placeholder telemetry cards (battery, distance, mode)
-- Live command and response log panel
+- mode selector for idle, manual, obstacle avoidance, and waypoint-by-command
+- emergency stop
+- waypoint text area with route submission controls
+- live telemetry cards and status strip
+- MJPEG camera stream panel
+- camera pan slider
+- event log driven by backend updates
