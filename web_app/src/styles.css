@@ -1,0 +1,448 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(68, 99, 255, 0.24), transparent 28%),
+    radial-gradient(circle at top right, rgba(0, 220, 190, 0.18), transparent 26%),
+    linear-gradient(180deg, #060912 0%, #090d19 45%, #05070e 100%);
+  color: #e9f0ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+.page-shell {
+  min-height: 100vh;
+  padding: 18px;
+}
+
+.dashboard-shell {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(16, 24, 44, 0.88), rgba(10, 14, 28, 0.94));
+  border: 1px solid rgba(97, 125, 214, 0.2);
+  border-radius: 22px;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+}
+
+.hero-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 28px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(17, 29, 58, 0.95), rgba(8, 12, 24, 0.96));
+  border: 1px solid rgba(92, 125, 255, 0.25);
+  border-radius: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #8eb5ff;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.12rem;
+}
+
+.hero-copy,
+.panel-heading p,
+.field-group small,
+.empty-state,
+.telemetry-hint {
+  color: #9aabcf;
+}
+
+.hero-copy {
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+.hero-actions {
+  display: grid;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.status-badge {
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.status-badge.connected {
+  background: rgba(48, 165, 112, 0.2);
+  color: #8cf5c6;
+  border-color: rgba(80, 232, 164, 0.35);
+}
+
+.status-badge.connecting {
+  background: rgba(213, 152, 32, 0.15);
+  color: #f6d483;
+  border-color: rgba(246, 212, 131, 0.3);
+}
+
+.status-badge.error,
+.status-badge.disconnected {
+  background: rgba(200, 52, 84, 0.16);
+  color: #ff95ab;
+  border-color: rgba(255, 149, 171, 0.3);
+}
+
+.stop-button,
+.primary,
+.secondary,
+.ghost,
+.mode-chip,
+.manual-button {
+  border-radius: 14px;
+  padding: 12px 16px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.stop-button:hover,
+.primary:hover,
+.secondary:hover,
+.ghost:hover,
+.mode-chip:hover,
+.manual-button:hover {
+  transform: translateY(-1px);
+}
+
+.stop-button {
+  background: linear-gradient(135deg, #ff4f74, #db103f);
+  color: white;
+  box-shadow: 0 12px 30px rgba(219, 16, 63, 0.28);
+}
+
+.primary {
+  background: linear-gradient(135deg, #6582ff, #4560eb);
+  color: white;
+  box-shadow: 0 10px 22px rgba(69, 96, 235, 0.28);
+}
+
+.secondary {
+  background: rgba(147, 170, 255, 0.12);
+  color: #eff3ff;
+  border: 1px solid rgba(147, 170, 255, 0.18);
+}
+
+.ghost {
+  background: rgba(72, 100, 171, 0.08);
+  color: #c6d5ff;
+  border: 1px solid rgba(118, 142, 214, 0.14);
+}
+
+.connection-row {
+  display: grid;
+  grid-template-columns: 1.4fr auto;
+  gap: 18px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+}
+
+.field-group {
+  display: grid;
+  gap: 8px;
+}
+
+.field-group label {
+  color: #b8c7ea;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  width: 100%;
+  background: rgba(7, 11, 21, 0.88);
+  color: #edf3ff;
+  border: 1px solid rgba(114, 136, 212, 0.25);
+  border-radius: 14px;
+  padding: 14px 15px;
+}
+
+textarea {
+  min-height: 210px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.connection-buttons,
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.connection-buttons {
+  align-items: end;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
+  gap: 16px;
+}
+
+.left-column,
+.right-column {
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  padding: 22px;
+}
+
+.panel-heading {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.panel-heading.compact {
+  margin-bottom: 14px;
+}
+
+.mode-grid,
+.manual-grid,
+.telemetry-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.mode-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mode-chip {
+  background: rgba(71, 90, 155, 0.16);
+  color: #dfe8ff;
+  border: 1px solid rgba(115, 136, 219, 0.2);
+}
+
+.mode-chip.active {
+  background: linear-gradient(135deg, rgba(89, 112, 255, 0.26), rgba(48, 209, 178, 0.18));
+  border-color: rgba(121, 161, 255, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(169, 193, 255, 0.1);
+}
+
+.manual-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.manual-button {
+  background: linear-gradient(140deg, rgba(49, 67, 144, 0.9), rgba(23, 34, 88, 0.95));
+  color: #eef2ff;
+}
+
+.manual-button.danger {
+  background: linear-gradient(135deg, #ff5a7a, #dd1847);
+  box-shadow: 0 0 0 1px rgba(255, 105, 131, 0.22), 0 14px 28px rgba(221, 24, 71, 0.2);
+}
+
+.telemetry-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.telemetry-card {
+  border-radius: 18px;
+  border: 1px solid rgba(110, 139, 212, 0.18);
+  padding: 15px;
+  background: rgba(9, 14, 27, 0.92);
+}
+
+.telemetry-card.blue { box-shadow: inset 0 0 0 1px rgba(77, 123, 255, 0.12); }
+.telemetry-card.green { box-shadow: inset 0 0 0 1px rgba(76, 220, 153, 0.12); }
+.telemetry-card.purple { box-shadow: inset 0 0 0 1px rgba(182, 119, 255, 0.12); }
+.telemetry-card.cyan { box-shadow: inset 0 0 0 1px rgba(76, 226, 255, 0.12); }
+.telemetry-card.amber { box-shadow: inset 0 0 0 1px rgba(255, 193, 87, 0.12); }
+.telemetry-card.red { box-shadow: inset 0 0 0 1px rgba(255, 122, 133, 0.12); }
+
+.telemetry-label {
+  color: #8fa2cd;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.telemetry-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.telemetry-hint {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.status-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.status-strip div {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(8, 12, 23, 0.88);
+  border: 1px solid rgba(112, 133, 207, 0.12);
+}
+
+.status-strip span {
+  display: block;
+  color: #8fa2cd;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.status-strip strong {
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.video-frame {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(112, 133, 207, 0.2);
+  background: rgba(4, 7, 15, 0.92);
+  aspect-ratio: 16 / 9;
+  margin-bottom: 14px;
+}
+
+.video-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.slider-label {
+  display: grid;
+  gap: 10px;
+  color: #cdd9f8;
+}
+
+.event-list {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.event-item {
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(115, 136, 219, 0.14);
+  background: rgba(8, 12, 23, 0.9);
+}
+
+.event-item span {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #8fa2cd;
+  font-size: 0.78rem;
+}
+
+.event-item p {
+  line-height: 1.45;
+}
+
+.event-item.system { border-color: rgba(133, 153, 255, 0.24); }
+.event-item.incoming { border-color: rgba(77, 199, 255, 0.24); }
+.event-item.outgoing { border-color: rgba(102, 240, 176, 0.24); }
+.event-item.error { border-color: rgba(255, 111, 135, 0.28); }
+
+@media (max-width: 1120px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .hero-bar,
+  .connection-row {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .hero-actions {
+    min-width: 0;
+  }
+
+  .telemetry-grid,
+  .manual-grid,
+  .mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .page-shell {
+    padding: 12px;
+  }
+
+  .panel,
+  .hero-bar,
+  .connection-row {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .telemetry-grid,
+  .manual-grid,
+  .mode-grid,
+  .status-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .connection-buttons,
+  .action-row {
+    flex-direction: column;
+  }
+
+  .connection-buttons button,
+  .action-row button {
+    width: 100%;
+  }
+}

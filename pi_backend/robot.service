@@ -1,0 +1,15 @@
+[Unit]
+Description=Robot rover backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/RobotAI/pi_backend
+ExecStart=/usr/bin/python3 /home/pi/RobotAI/pi_backend/app.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
