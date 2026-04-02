@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import socket
 from datetime import datetime, timezone
 from typing import Any
 
@@ -73,9 +74,37 @@ app = FastAPI(title=config.APP_NAME)
 telemetry_task: asyncio.Task[None] | None = None
 
 
+def _detect_local_ip() -> str:
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect(('8.8.8.8', 80))
+            return str(sock.getsockname()[0])
+    except OSError:
+        try:
+            return socket.gethostbyname(socket.gethostname())
+        except OSError:
+            return '127.0.0.1'
+
+
+def _print_startup_banner() -> None:
+    ip = _detect_local_ip()
+    http_base = f'http://{ip}:{config.PORT}'
+    ws_url = f'ws://{ip}:{config.PORT}{config.WS_PATH}'
+    video_url = f'{http_base}{config.VIDEO_PATH}'
+    print('=' * 64)
+    print(f'{config.APP_NAME} is starting')
+    print(f'Mock mode: {config.MOCK_MODE}')
+    print(f'HTTP:  {http_base}')
+    print(f'WS:    {ws_url}')
+    print(f'Video: {video_url}')
+    print('Tip: open the frontend on your Mac and paste the HTTP URL.')
+    print('=' * 64)
+
+
 @app.on_event('startup')
 async def startup_event() -> None:
     global telemetry_task
+    _print_startup_banner()
 
     async def telemetry_loop() -> None:
         while True:
@@ -173,7 +202,7 @@ async def stop_autonomy() -> dict[str, Any]:
     return state.snapshot()
 
 
-@app.get('/video')
+@app.get(config.VIDEO_PATH)
 async def video_stream() -> Any:
     return camera.response()
 
@@ -216,7 +245,7 @@ async def handle_ws_message(payload: dict[str, Any]) -> None:
     await broadcast_state()
 
 
-@app.websocket('/ws')
+@app.websocket(config.WS_PATH)
 async def websocket_endpoint(websocket: WebSocket) -> None:
     await hub.connect(websocket)
     await broadcast_state()

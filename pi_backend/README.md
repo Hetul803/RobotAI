@@ -31,29 +31,20 @@ cd pi_backend
 python3 app.py
 ```
 
-Or:
+On startup, `app.py` prints:
 
-```bash
-cd pi_backend
-chmod +x run.sh
-./run.sh
-```
+- Pi IP address
+- HTTP URL
+- WebSocket URL
+- video URL
 
-The API listens on `http://0.0.0.0:8000` by default.
+Use the printed HTTP URL in the frontend connection field.
 
 ## Edit wiring and tuning
 
 Open `config.py` and update the motor pins, servo channels, steering limits, camera pan limits, LiDAR connection values, safety thresholds, speeds, and video settings.
 
 Set `MOCK_MODE = True` while developing without hardware. Set it to `False` when you replace the mock controller internals with real hardware calls.
-
-## Find the Pi IP address
-
-```bash
-hostname -I
-```
-
-Use the first IP address in the output. You can also try `raspberrypi.local` on the same network.
 
 ## Frontend connection
 

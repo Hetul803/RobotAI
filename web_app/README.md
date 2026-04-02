@@ -41,6 +41,7 @@ You can replace it with your Pi IP address, for example:
 - mode selector for idle, manual, obstacle avoidance, and waypoint-by-command
 - emergency stop
 - waypoint text area with route submission controls
+- optional target mode that converts local `(x, y)` targets into waypoint commands
 - live telemetry cards and status strip
 - MJPEG camera stream panel
 - camera pan slider
