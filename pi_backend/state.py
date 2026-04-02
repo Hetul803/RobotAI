@@ -25,6 +25,12 @@ class RobotSnapshot:
     drive_direction: str = 'stopped'
     camera_status: str = 'ready'
     lidar_status: str = 'ready'
+    motor_controller_status: str = 'unknown'
+    steering_servo_status: str = 'unknown'
+    camera_pan_servo_status: str = 'unknown'
+    camera_health_status: str = 'unknown'
+    lidar_health_status: str = 'unknown'
+    backend_ready: bool = False
     battery_level: int = config.BATTERY_PLACEHOLDER_PERCENT
     last_action: str = 'idle'
     error: str | None = None

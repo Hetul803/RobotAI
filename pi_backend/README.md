@@ -31,20 +31,36 @@ cd pi_backend
 python3 app.py
 ```
 
-On startup, `app.py` prints:
+`app.py` initializes controllers, runs startup self-tests (if enabled), prints hardware status, and then prints:
 
-- Pi IP address
+- detected Pi IP
 - HTTP URL
 - WebSocket URL
 - video URL
 
-Use the printed HTTP URL in the frontend connection field.
+Use the printed HTTP URL in the frontend.
 
 ## Edit wiring and tuning
 
-Open `config.py` and update the motor pins, servo channels, steering limits, camera pan limits, LiDAR connection values, safety thresholds, speeds, and video settings.
+Edit only `config.py`. It is grouped into:
 
-Set `MOCK_MODE = True` while developing without hardware. Set it to `False` when you replace the mock controller internals with real hardware calls.
+- motor settings
+- steering settings
+- camera settings
+- lidar settings
+- safety and autonomy settings
+- backend settings
+- runtime and debug settings
+
+Important fields:
+
+- motor GPIO/PWM pins
+- steering and camera-pan servo channels
+- LiDAR serial port and baud
+- camera source/resolution/FPS
+- safety thresholds and turn timing
+- host, port, and path settings
+- `MOCK_MODE` and `STARTUP_SELF_TEST`
 
 ## Frontend connection
 
@@ -58,6 +74,12 @@ The frontend uses:
 - WebSocket telemetry at `/ws`
 - camera stream at `/video`
 - REST routes for mode changes, waypoint submission, and emergency stop
+
+If needed, check Pi IP manually:
+
+```bash
+hostname -I
+```
 
 ## Enable auto-start with systemd
 
@@ -78,6 +100,7 @@ If your project lives somewhere else, update `WorkingDirectory` and `ExecStart` 
 - `GET /`
 - `GET /state`
 - `GET /config`
+- `GET /info`
 - `POST /mode`
 - `POST /stop`
 - `POST /waypoints`

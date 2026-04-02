@@ -25,7 +25,7 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-`app.py` prints the Pi IP plus HTTP/WS/video URLs at startup.
+Edit only `pi_backend/config.py` for wiring, limits, ports, and runtime options.
 
 ### Frontend dashboard
 
@@ -34,6 +34,13 @@ cd web_app
 npm install
 npm run dev
 ```
+
+## Simple Pi + Mac workflow
+
+1. Copy `pi_backend/` to the Raspberry Pi.
+2. Edit `pi_backend/config.py`.
+3. Run `python3 app.py` on the Pi.
+4. Use the printed HTTP URL in the frontend on your Mac and connect.
 
 ## Modes
 
@@ -44,7 +51,7 @@ npm run dev
 ## Deployment notes
 
 - Copy the full `pi_backend/` folder to the Raspberry Pi.
-- Adjust wiring and safety values in `pi_backend/config.py`.
+- Adjust wiring and safety values in `pi_backend/config.py` only.
 - Enable `robot.service` if you want the backend to start at boot.
 - Typical startup flow:
   1. Run `python3 app.py` on the Pi.
