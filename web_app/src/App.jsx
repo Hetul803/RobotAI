@@ -3,6 +3,7 @@ import TelemetryCard from './components/TelemetryCard'
 
 const defaultBackendUrl = 'http://raspberrypi.local:8000'
 const sampleRoute = ['forward 10', 'right 90', 'forward 3', 'left 45', 'stop'].join('\n')
+const targetSample = { x: 2, y: 3 }
 const manualButtons = [
   { label: 'Forward', command: 'forward' },
   { label: 'Left', command: 'left' },
@@ -51,6 +52,10 @@ export default function App() {
   const [selectedMode, setSelectedMode] = useState('idle')
   const [cameraPan, setCameraPan] = useState(90)
   const [waypoints, setWaypoints] = useState(sampleRoute)
+  const [targetModeEnabled, setTargetModeEnabled] = useState(false)
+  const [targetX, setTargetX] = useState(targetSample.x)
+  const [targetY, setTargetY] = useState(targetSample.y)
+  const [cameraPanLimits, setCameraPanLimits] = useState({ min: 30, max: 150 })
   const socketRef = useRef(null)
   const lastEventSignatureRef = useRef('')
 
@@ -84,10 +89,16 @@ export default function App() {
 
   const syncState = async () => {
     try {
-      const snapshot = await fetchJson('/state', { method: 'GET', headers: undefined })
+      const [snapshot, backendConfig] = await Promise.all([
+        fetchJson('/state', { method: 'GET', headers: undefined }),
+        fetchJson('/config', { method: 'GET', headers: undefined }),
+      ])
       setTelemetry((prev) => ({ ...prev, ...snapshot }))
       setSelectedMode(snapshot.mode || 'idle')
       setCameraPan(snapshot.camera_pan_angle ?? 90)
+      if (backendConfig?.camera_pan?.min != null && backendConfig?.camera_pan?.max != null) {
+        setCameraPanLimits({ min: backendConfig.camera_pan.min, max: backendConfig.camera_pan.max })
+      }
     } catch (error) {
       pushEvent('error', error.message)
     }
@@ -211,6 +222,30 @@ export default function App() {
     }
   }
 
+  const applyTargetAsCommands = () => {
+    const x = Number(targetX)
+    const y = Number(targetY)
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      pushEvent('error', 'Target mode needs numeric X and Y values')
+      return
+    }
+    const distance = Math.sqrt(x * x + y * y)
+    if (distance < 0.01) {
+      setWaypoints('stop')
+      pushEvent('system', 'Target is close to origin, route set to stop')
+      return
+    }
+    const heading = (Math.atan2(x, y) * 180) / Math.PI
+    const turnDirection = heading >= 0 ? 'right' : 'left'
+    const turnDegrees = Math.abs(heading)
+    const lines = []
+    if (turnDegrees >= 1) lines.push(`${turnDirection} ${turnDegrees.toFixed(1)}`)
+    lines.push(`forward ${distance.toFixed(2)}`)
+    lines.push('stop')
+    setWaypoints(lines.join('\n'))
+    pushEvent('system', `Target route estimated from x=${x}, y=${y}`)
+  }
+
   const handlePanChange = (value) => {
     const numeric = Number(value)
     setCameraPan(numeric)
@@ -322,6 +357,9 @@ export default function App() {
                 <button className="primary" onClick={submitWaypoints}>
                   Submit Route
                 </button>
+                <button className="secondary" onClick={() => setTargetModeEnabled((value) => !value)}>
+                  {targetModeEnabled ? 'Hide Target Mode' : 'Show Target Mode'}
+                </button>
                 <button className="secondary" onClick={() => setWaypoints(sampleRoute)}>
                   Load Sample
                 </button>
@@ -329,6 +367,36 @@ export default function App() {
                   Clear
                 </button>
               </div>
+              {targetModeEnabled ? (
+                <div className="target-mode">
+                  <p>Set a local target in meters relative to the rover. +Y is forward, +X is right.</p>
+                  <div className="target-grid">
+                    <label>
+                      Target X (m)
+                      <input
+                        type="number"
+                        value={targetX}
+                        step="0.1"
+                        onChange={(event) => setTargetX(event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      Target Y (m)
+                      <input
+                        type="number"
+                        value={targetY}
+                        step="0.1"
+                        onChange={(event) => setTargetY(event.target.value)}
+                      />
+                    </label>
+                  </div>
+                  <div className="action-row">
+                    <button className="primary" onClick={applyTargetAsCommands}>
+                      Convert to Route
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </section>
 
             <section className="panel manual-panel">
@@ -406,8 +474,8 @@ export default function App() {
                 Camera Pan <strong>{cameraPan}°</strong>
                 <input
                   type="range"
-                  min="30"
-                  max="150"
+                  min={cameraPanLimits.min}
+                  max={cameraPanLimits.max}
                   value={cameraPan}
                   onChange={(event) => handlePanChange(event.target.value)}
                 />
