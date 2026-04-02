@@ -31,29 +31,37 @@ cd pi_backend
 python3 app.py
 ```
 
-Or:
+`app.py` initializes controllers, runs startup self-tests (if enabled), and then prints:
 
-```bash
-cd pi_backend
-chmod +x run.sh
-./run.sh
-```
+- detected Pi IP
+- HTTP URL
+- WebSocket URL
+- video URL
 
-The API listens on `http://0.0.0.0:8000` by default.
+Use the printed HTTP URL in the frontend.
 
 ## Edit wiring and tuning
 
-Open `config.py` and update the motor pins, servo channels, steering limits, camera pan limits, LiDAR connection values, safety thresholds, speeds, and video settings.
+Edit only `config.py`. Main groups:
 
-Set `MOCK_MODE = True` while developing without hardware. Set it to `False` when you replace the mock controller internals with real hardware calls.
+- backend settings (`HOST`, `PORT`, `WS_PATH`, `VIDEO_PATH`)
+- drive motor settings (L298N direction GPIO pins + PCA9685 PWM channels)
+- steering servo settings (direct Pi GPIO pin and angle limits)
+- camera pan servo settings (direct Pi GPIO pin and angle limits)
+- camera settings (enabled flag, source type, index/device path, resolution, fps)
+- lidar settings (enabled flag, usb serial port, baud, safety distances)
+- drive/autonomy tuning and runtime/debug values
 
-## Find the Pi IP address
+Current default motor values match your wheel test setup:
 
-```bash
-hostname -I
-```
-
-Use the first IP address in the output. You can also try `raspberrypi.local` on the same network.
+- `LEFT_MOTOR_FORWARD_PIN = 25`
+- `LEFT_MOTOR_REVERSE_PIN = 24`
+- `RIGHT_MOTOR_FORWARD_PIN = 17`
+- `RIGHT_MOTOR_REVERSE_PIN = 27`
+- `LEFT_MOTOR_PWM_CHANNEL = 4`
+- `RIGHT_MOTOR_PWM_CHANNEL = 5`
+- `FLIP_MOTOR_A = False`
+- `FLIP_MOTOR_B = True`
 
 ## Frontend connection
 
@@ -67,6 +75,12 @@ The frontend uses:
 - WebSocket telemetry at `/ws`
 - camera stream at `/video`
 - REST routes for mode changes, waypoint submission, and emergency stop
+
+If needed, check Pi IP manually:
+
+```bash
+hostname -I
+```
 
 ## Enable auto-start with systemd
 

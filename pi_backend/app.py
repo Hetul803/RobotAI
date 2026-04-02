@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import socket
 from datetime import datetime, timezone
 from typing import Any
 
@@ -59,6 +60,7 @@ motor = MotorController(state)
 steering = SteeringController(state)
 lidar = LidarController(state)
 camera = CameraController(state)
+startup_urls: dict[str, str] = {}
 
 
 async def broadcast_state() -> None:
@@ -73,9 +75,108 @@ app = FastAPI(title=config.APP_NAME)
 telemetry_task: asyncio.Task[None] | None = None
 
 
+def _detect_local_ip() -> str:
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect(('8.8.8.8', 80))
+            return str(sock.getsockname()[0])
+    except OSError:
+        try:
+            return socket.gethostbyname(socket.gethostname())
+        except OSError:
+            return '127.0.0.1'
+
+
+def _build_connection_urls() -> dict[str, str]:
+    ip = _detect_local_ip()
+    http_url = f'http://{ip}:{config.PORT}'
+    return {
+        'ip': ip,
+        'http_url': http_url,
+        'ws_url': f'ws://{ip}:{config.PORT}{config.WS_PATH}',
+        'video_url': f'{http_url}{config.VIDEO_PATH}',
+    }
+
+
+def _status_label(ok: bool) -> str:
+    return 'OK' if ok else 'FAILED'
+
+
+def _initialize_hardware_status() -> dict[str, bool]:
+    motor_ok, motor_message = motor.initialize()
+    steering_status = steering.initialize()
+    lidar_ok, lidar_message = lidar.initialize()
+    camera_ok, camera_message = camera.initialize()
+    checks: dict[str, bool] = {
+        'motor': motor_ok,
+        'steering': steering_status['steering'][0],
+        'camera_pan': steering_status['camera_pan'][0],
+        'lidar': lidar_ok,
+        'camera': camera_ok,
+    }
+
+    if not motor_ok:
+        state.push_event('error', f'motor init failed: {motor_message}')
+    if not steering_status['steering'][0]:
+        state.push_event('error', f"steering init failed: {steering_status['steering'][1]}")
+    if not steering_status['camera_pan'][0]:
+        state.push_event('error', f"camera pan init failed: {steering_status['camera_pan'][1]}")
+    if not lidar_ok:
+        state.push_event('error', f'lidar init failed: {lidar_message}')
+    if not camera_ok:
+        state.push_event('error', f'camera init failed: {camera_message}')
+
+    state.update(
+        motor_controller_status=_status_label(checks['motor']),
+        steering_servo_status=_status_label(checks['steering']),
+        camera_pan_servo_status=_status_label(checks['camera_pan']),
+        lidar_health_status=_status_label(checks['lidar']),
+        camera_health_status=_status_label(checks['camera']),
+        backend_ready=all(checks.values()) or config.MOCK_MODE,
+    )
+    return checks
+
+
+def _print_startup_summary(checks: dict[str, bool], urls: dict[str, str]) -> None:
+    mode = 'mock' if config.MOCK_MODE else 'hardware'
+    print('Robot backend starting...')
+    print(f'Mode: {mode}')
+    print(f'Camera: {_status_label(checks["camera"])}')
+    print(f'LiDAR: {_status_label(checks["lidar"])}')
+    print(f'Steering servo: {_status_label(checks["steering"])}')
+    print(f'Camera pan servo: {_status_label(checks["camera_pan"])}')
+    print(f'Motor controller: {_status_label(checks["motor"])}')
+    print('')
+    print(f'Detected IP: {urls["ip"]}')
+    print(f'HTTP URL:  {urls["http_url"]}')
+    print(f'WS URL:    {urls["ws_url"]}')
+    print(f'Video URL: {urls["video_url"]}')
+    print('')
+    print('Ready for frontend connection.')
+
+
 @app.on_event('startup')
 async def startup_event() -> None:
     global telemetry_task
+    global startup_urls
+    checks = _initialize_hardware_status() if config.STARTUP_SELF_TEST else {
+        'motor': True,
+        'steering': True,
+        'camera_pan': True,
+        'lidar': True,
+        'camera': True,
+    }
+    if not config.STARTUP_SELF_TEST:
+        state.update(
+            motor_controller_status='SKIPPED',
+            steering_servo_status='SKIPPED',
+            camera_pan_servo_status='SKIPPED',
+            lidar_health_status='SKIPPED',
+            camera_health_status='SKIPPED',
+            backend_ready=True,
+        )
+    startup_urls = _build_connection_urls()
+    _print_startup_summary(checks, startup_urls)
 
     async def telemetry_loop() -> None:
         while True:
@@ -173,7 +274,7 @@ async def stop_autonomy() -> dict[str, Any]:
     return state.snapshot()
 
 
-@app.get('/video')
+@app.get(config.VIDEO_PATH)
 async def video_stream() -> Any:
     return camera.response()
 
@@ -216,7 +317,7 @@ async def handle_ws_message(payload: dict[str, Any]) -> None:
     await broadcast_state()
 
 
-@app.websocket('/ws')
+@app.websocket(config.WS_PATH)
 async def websocket_endpoint(websocket: WebSocket) -> None:
     await hub.connect(websocket)
     await broadcast_state()

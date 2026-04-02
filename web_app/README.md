@@ -18,15 +18,22 @@ npm run dev
 
 Vite serves the app on `http://localhost:5173` by default.
 
-## Change the backend URL
+## Connect to the backend
 
-The dashboard has a backend URL field at the top of the page. The default value is:
+The dashboard has a backend HTTP URL field at the top. The default value is:
 
 - `http://raspberrypi.local:8000`
 
-You can replace it with your Pi IP address, for example:
+Replace it with your Pi IP address, for example:
 
 - `http://192.168.1.44:8000`
+
+The UI derives:
+
+- `ws://<pi-ip>:8000/ws`
+- `http://<pi-ip>:8000/video`
+
+You can also manually override the WebSocket URL if needed.
 
 ## Use it from a laptop or phone on the same Wi-Fi
 
@@ -41,6 +48,7 @@ You can replace it with your Pi IP address, for example:
 - mode selector for idle, manual, obstacle avoidance, and waypoint-by-command
 - emergency stop
 - waypoint text area with route submission controls
+- optional target mode that converts local `(x, y)` targets into waypoint commands
 - live telemetry cards and status strip
 - MJPEG camera stream panel
 - camera pan slider
