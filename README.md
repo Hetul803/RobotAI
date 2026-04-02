@@ -53,3 +53,8 @@ npm run dev
 - Copy the full `pi_backend/` folder to the Raspberry Pi.
 - Adjust wiring and safety values in `pi_backend/config.py` only.
 - Enable `robot.service` if you want the backend to start at boot.
+- Typical startup flow:
+  1. Run `python3 app.py` on the Pi.
+  2. Read the printed HTTP URL.
+  3. Open the frontend on your Mac.
+  4. Paste the backend URL and connect.
